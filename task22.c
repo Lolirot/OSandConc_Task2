@@ -3,22 +3,20 @@
 void main(int argc, char *argv[])
 {
 	int fdup[2];
-	FILE *fd;
 	pipe(fdup);
 	if (fork() == 0)
 	{
-		fd = popen("ps", "r");
-		fdup[0] = dup2(fd, 0);
-		close(fd);
+		close(fdup[0]);
+		dup2(fdup[1],1);
+		dup2(fdup[2],2);
 		argv[0] = "/bin/ps";
 		execve("/bin/ps", argv);
 	}
 	
 	if(fork() == 0)
 	{
-		fd = popen("wc", "w");
-		fdup[1] = dup2(fd, 1);
-		close(fd);
+		close(fdup[1]);
+		dup2(fdup[0], 0);
 		char *args[1];
 		args[0]="/usr/bin/wc";
 		execve("/usr/bin/wc", args);
